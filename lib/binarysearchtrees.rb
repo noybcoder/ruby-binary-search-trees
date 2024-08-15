@@ -63,11 +63,70 @@ class Tree
     find(node.right_child, data) if data > node.data
   end
 
-  def level_order(node = self.root)
+  def level_order(node = self.root, &block)
+    return [] if node.nil?
+    output = []
+    queue = [node]
+    until queue.empty?
+      current = queue.shift
+      block_given? ? (yield current) : output << current.data
+      queue << current.left_child if current.left_child
+      queue << current.right_child if current.right_child
+    end
+    output unless block_given?
+  end
+
+  def inorder(node = self.root, output = [], &block)
     return if node.nil?
-    level_order(node.left_child)
-    yield node if block_given?
-    level_order(node.right_child)
+    inorder(node.left_child, output, &block)
+    block_given? ? (yield node) : output << node.data
+    inorder(node.right_child, output, &block)
+    output
+  end
+
+  def preorder(node = self.root, output = [], &block)
+    return if node.nil?
+    block_given? ? (yield node) : output << node.data
+    preorder(node.left_child, output, &block)
+    preorder(node.right_child, output, &block)
+    output
+  end
+
+  def postorder(node = self.root, output = [], &block)
+    return if node.nil?
+    postorder(node.left_child, output, &block)
+    postorder(node.right_child, output, &block)
+    block_given? ? (yield node) : output << node.data
+    output
+  end
+
+  def height(node = self.root)
+    return -1 if node.nil?
+    left_height = height(node.left_child)
+    right_height = height(node.right_child)
+    [left_height, right_height].max + 1
+  end
+
+  def depth(node = self.root, target)
+    return -1 if node.nil?
+    return 0 if target == node
+    left_depth = depth(node.left_child, target)
+    return left_depth + 1 unless left_depth.negative?
+    right_depth = depth(node.right_child, target)
+    return right_depth + 1 unless right_depth.negative?
+    -1
+  end
+
+  def balanced?(node = self.root)
+    return true if node.nil?
+    left_height = height(node.left_child)
+    right_height = height(node.right_child)
+    (left_height - right_height).abs <= 1 && balanced?(node.left_child) && balanced?(node.right_child)
+  end
+
+  def rebalance
+    array = inorder
+    self.root = build_tree(array, 0, array.length - 1)
   end
 
   def get_successor(current_node)
@@ -82,12 +141,15 @@ class Tree
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
     pretty_print(node.left_child, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left_child
   end
-
-
 end
 
 t = Tree.new([2, 100, 78, 45, 20, 4, 67, 35, 19, 99, 48])
 t.insert(999)
+t.insert(10000)
 t.delete(45)
 t.pretty_print
-p t.level_order { |node| puts node }
+# puts t.level_order { |node| puts node.data }
+# puts t.postorder
+
+t.rebalance
+t.pretty_print
