@@ -1,20 +1,32 @@
 # frozen_string_literal: true
 
-require_relative 'comparable'
+require_relative 'comparable' # Require a custom Comparable module for node comparison
 
+# Tree class that represents the Binary Search Tree data structure.
 class Tree
-  include Comparable
+  include Comparable # Include the Comparable module to enable custom comparisons
+
+  # Inner class to represent a node in the binary search tree
   class Node
+    # Allows the read and write access to the instance variables
     attr_accessor :data, :left_child, :right_child
 
+    # Public: Initializes a new node.
+    #
+    # data - The data assigned to the new node (default: nil).
+    # left_child - The pointer to the immediate child on the left (default: nil).
+    # right_child - The pointer to the immediate child on the right (default: nil).
+    #
+    # Returns a new Node object.
     def initialize(data = nil, left_child = nil, right_child = nil)
-      @data = data
-      @left_child = left_child
-      @right_child = right_child
+      @data = data # Assign the data
+      @left_child = left_child # Assign the pointer to the left child
+      @right_child = right_child # Assign the pointer to the right child
     end
   end
 
-  private_constant :Node
+  private_constant :Node # Makes the Node class private within Tree
+  # Allows the read and write access to the instance variables
   attr_accessor :input, :root
 
   def initialize(input = get_random_input)
